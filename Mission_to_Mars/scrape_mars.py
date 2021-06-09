@@ -60,6 +60,7 @@ def scrape():
     #dropped first row to eleminate unnecessary items
     df = df.iloc[1:]
     df = df.reset_index(drop=True)
+    df.set_index('Properties', inplace=True)
     df
     #Converted dataframe to HTML Tabls
     html_table = df.to_html()
