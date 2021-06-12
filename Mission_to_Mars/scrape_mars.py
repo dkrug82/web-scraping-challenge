@@ -11,27 +11,30 @@ import pandas as pd
 from webdriver_manager.chrome import ChromeDriverManager
 
 def scrape():
-    #NASA Mars News
+    
     # Set up Browser
     executable_path = {'executable_path': ChromeDriverManager().install()}
     browser = Browser('chrome', **executable_path, headless=False)
+
+    #NASA Mars News
     #Visit website
     url = "https://redplanetscience.com/"
     browser.visit(url) 
     #Set up BeautifulSoup to find what is needed   
     html = browser.html
     soup = bs(html, "html.parser")
-    news_title = soup.find('div', class_='content_title').get_text()
-    print(news_title)
-    #scrape for paragraph text for news title
-    news_p = soup.find('div', class_='article_teaser_body').get_text()
-    print(news_p)
-    browser.quit()
+    try:
+        news_title = soup.find('div', class_='content_title').get_text()
+        #print(news_title)
+        #scrape for paragraph text for news title
+        news_p = soup.find('div', class_='article_teaser_body').get_text()
+        #print(news_p)
+    except AttributeError:
+        return None, None
+    
 
     # # JPL Mars Space Images - Featured Image
-    #set up browser
-    executable_path = {'executable_path': ChromeDriverManager().install()}
-    browser = Browser('chrome', **executable_path, headless=False)
+    
     #visit website
     url = "https://spaceimages-mars.com/"
     browser.visit(url)
@@ -44,7 +47,7 @@ def scrape():
     #added image source to original url to create the full image link
     featured_image_url = url + header_image
     print(featured_image_url)
-    browser.quit()
+    
 
     # # Mars Facts
     #set up url
@@ -56,22 +59,20 @@ def scrape():
     #Created dataframe from tables list element
     df = tables[0]
     #Renamed columns
-    df.columns = ['Properties', 'Mars', 'Earth']
+    df.columns = ['Description', 'Mars', 'Earth']
     #dropped first row to eleminate unnecessary items
     df = df.iloc[1:]
     df = df.reset_index(drop=True)
-    df.set_index('Properties', inplace=True)
+    df.set_index('Description', inplace=True)
     df
     #Converted dataframe to HTML Tabls
-    html_table = df.to_html()
+    html_table = df.to_html(classes=["table", 'table-striped'])
     html_table
     #Stripped unwanted newlines 
     stripped_html_table = html_table.replace('\n', '')
 
     # # Mars Hemispheres    
-    #set up browser
-    executable_path = {'executable_path': ChromeDriverManager().install()}
-    browser = Browser('chrome', **executable_path, headless=False)
+    
     #visit website
     url = "https://marshemispheres.com/"
     browser.visit(url)
@@ -100,7 +101,7 @@ def scrape():
         html = browser.html
         soup = bs(html, "html.parser")
         #parsed to find image url
-        img_url = soup.find_all('a', target='_blank')[3]['href']
+        img_url = soup.find_all('a', target='_blank')[2]['href']
         #added img_url to the original url to create a full link to image
         full_img = url + img_url
         #parsed to find title
@@ -112,7 +113,7 @@ def scrape():
         hemisphere_image_urls.append(hem_info)
     
     print(hemisphere_image_urls)
-    browser.quit()
+    
 
     #Store data in dictionary
     mars_data = {
@@ -122,7 +123,7 @@ def scrape():
         "facts_table":stripped_html_table,
         "hemispheres":hemisphere_image_urls
     }
-
+    browser.quit()
     return mars_data
 
-
+scrape()
