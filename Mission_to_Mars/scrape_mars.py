@@ -19,7 +19,10 @@ def scrape():
     #NASA Mars News
     #Visit website
     url = "https://redplanetscience.com/"
-    browser.visit(url) 
+    browser.visit(url)
+
+
+    time.sleep(5) 
     #Set up BeautifulSoup to find what is needed   
     html = browser.html
     soup = bs(html, "html.parser")
